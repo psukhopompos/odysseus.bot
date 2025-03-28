@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odysseus AI | Inteligência Aplicada para Análise e Automação</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep-space: #080c13; /* Slightly softer dark blue */
+            --bg-surface: #111827;
+            --primary-accent: #5078f0; /* A bridge blue */
+            --secondary-accent: #8a5cf6; /* A bridge purple */
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0aec0;
+            --glow-primary: rgba(80, 120, 240, 0.25);
+            --glow-secondary: rgba(138, 92, 246, 0.25);
+            --border-accent: rgba(80, 120, 240, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-deep-space); color: var(--text-primary); line-height: 1.7; font-size: 16px; overflow-x: hidden; }
+        #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.08; } /* Subtle background */
+        .container { width: 90%; max-width: 1100px; margin: 0 auto; padding: 1rem 0; position: relative; z-index: 1; }
+
+        /* Header */
+        header { display: flex; justify-content: center; /* Center logo */ align-items: center; padding: 2rem 0; margin-bottom: 3rem; border-bottom: 1px solid var(--border-accent); }
+        .logo { font-weight: 700; font-size: 2.2rem; color: var(--text-primary); text-decoration: none; letter-spacing: -0.5px; }
+        .logo span {
+             background: linear-gradient(90deg, var(--primary-accent), var(--secondary-accent));
+             -webkit-background-clip: text;
+             -webkit-text-fill-color: transparent;
+             background-clip: text;
+        }
+        /* No nav needed on portal */
+
+        /* Hero Section */
+        .hero { text-align: center; min-height: 65vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 0; }
+        .hero h1 { font-size: 3.2rem; font-weight: 700; line-height: 1.25; margin-bottom: 1.5rem; max-width: 800px; color: var(--text-primary); }
+        .hero h1 .highlight1 {
+            background: linear-gradient(90deg, #4dffff, #80ffff); /* Cyan from analise */
+             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero h1 .highlight2 {
+             background: linear-gradient(90deg, #a78bfa, #c4b5fd); /* Purple hint from servicos */
+             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero p { font-size: 1.2rem; max-width: 700px; margin: 0 auto 3rem auto; color: var(--text-secondary); }
+        .hero-cta-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; }
+
+        /* Buttons */
+        .btn { padding: 1rem 2.2rem; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; display: inline-block; text-decoration: none; text-align: center; font-size: 1.05rem; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-accent), #3b5bdb); color: white; box-shadow: 0 5px 15px var(--glow-primary); }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 8px 25px var(--glow-primary); }
+        .btn-secondary { background: transparent; border: 2px solid var(--secondary-accent); color: var(--secondary-accent); box-shadow: none; }
+        .btn-secondary:hover { background: rgba(138, 92, 246, 0.1); transform: translateY(-2px); box-shadow: 0 4px 15px var(--glow-secondary); color: #c4b5fd; border-color: #c4b5fd;}
+
+        /* Service Sections */
+        .services-overview { padding: 5rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+        .service-card { background: var(--bg-surface); padding: 2.5rem; border-radius: 12px; border: 1px solid var(--border-accent); transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; height: 100%; }
+        .service-card:hover { transform: translateY(-6px); }
+        .service-card h2 { font-size: 1.8rem; margin-bottom: 1rem; font-weight: 600; }
+        .service-card p { color: var(--text-secondary); font-size: 1rem; margin-bottom: 2rem; flex-grow: 1; }
+        .service-card .btn { margin-top: auto; width: 100%; }
+
+        /* Specific Card Styling */
+        .service-card.analise { border-color: rgba(77, 255, 255, 0.3); }
+        .service-card.analise h2 { color: #4dffff; } /* Cyan */
+        .service-card.analise:hover { box-shadow: 0 10px 30px rgba(77, 255, 255, 0.1); }
+        .service-card.analise .btn { background: linear-gradient(135deg, #4dffff, #00ced1); color: #040d1f; box-shadow: 0 5px 15px var(--glow-cyan); } /* Reuse analise button */
+        .service-card.analise .btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 8px 25px var(--glow-cyan); }
+
+
+        .service-card.servicos { border-color: rgba(138, 92, 246, 0.3); }
+        .service-card.servicos h2 { color: #a78bfa; } /* Purple */
+        .service-card.servicos:hover { box-shadow: 0 10px 30px rgba(138, 92, 246, 0.1); }
+        /* Use the secondary button style for servicos */
+
+
+        /* Footer */
+        footer { padding: 3rem 0; text-align: center; opacity: 0.7; font-size: 0.9rem; border-top: 1px solid var(--border-accent); margin-top: 4rem;}
+        footer a { color: var(--primary-accent); text-decoration: none; transition: color 0.3s; }
+        footer a:hover { color: #809fff; text-decoration: underline; }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero h1 { font-size: 2.6rem; }
+            .hero p { font-size: 1.1rem; }
+            .services-overview { grid-template-columns: 1fr; gap: 2rem; }
+        }
+        @media (max-width: 768px) {
+            body { font-size: 15px; }
+            header { margin-bottom: 2rem; }
+            .hero { min-height: auto; padding: 2rem 0 3rem 0; }
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1rem; margin-bottom: 2rem;}
+            .hero-cta-container { flex-direction: column; align-items: center; gap: 1rem; width: 90%; max-width: 350px; margin-left: auto; margin-right: auto; }
+            .btn { width: 100%; padding: 0.9rem 1.5rem; font-size: 1rem;}
+            .services-overview { padding: 3rem 0; }
+            .service-card { padding: 2rem; }
+            .service-card h2 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Optional Subtle Particle Background -->
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="container">
+        <header>
+            <a href="#" class="logo">ODYSSEUS<span>.AI</span></a>
+            <!-- Navigation is omitted as this is a portal page -->
+        </header>
+
+        <main>
+            <section class="hero">
+                <h1>Inteligência Aplicada para <span class="highlight1">Análise Financeira</span> e <span class="highlight2">Automação de Processos</span></h1>
+                <p>Odysseus AI oferece soluções especializadas para impulsionar sua eficiência, seja acelerando decisões financeiras complexas ou automatizando tarefas operacionais repetitivas.</p>
+                <div class="hero-cta-container">
+                    <a href="https://analise.odysseus.bot" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Explorar Análise Financeira IA</a>
+                    <a href="https://servicos.odysseus.bot" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Descobrir Automação de Processos</a>
+                </div>
+            </section>
+
+            <section class="services-overview">
+                <div class="service-card analise">
+                    <h2>Análise Financeira Potencializada</h2>
+                    <p>Nossa plataforma dedicada automatiza análises complexas de mercado, ativos e portfólios em minutos. Libere sua equipe financeira para focar em estratégia, reduza custos operacionais e ganhe velocidade com insights gerados por IA.</p>
+                    <a href="https://analise.odysseus.bot" target="_blank" rel="noopener noreferrer" class="btn">Visitar Análise Odysseus AI</a>
+                </div>
+
+                <div class="service-card servicos">
+                    <h2>Automação Inteligente de Processos</h2>
+                    <p>Implementamos sistemas de IA adaptativos para executar tarefas repetitivas (verificações, relatórios, etc.) 24/7, sem erros. Reduza custos significativamente com nosso modelo de parceria baseado em economia real gerada, sem risco financeiro inicial.</p>
+                    <a href="https://servicos.odysseus.bot" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Visitar Serviços Odysseus AI</a>
+                </div>
+            </section>
+        </main>
+    </div> <!-- Fim .container principal -->
+
+    <footer>
+        <div class="container">
+            <p>© 2025 Odysseus AI Labs. Inteligência Aplicada, Resultados Reais.</p>
+            <p>Contato Geral: <a href="mailto:contato@odysseus.bot">contato@odysseus.bot</a></p>
+             <!-- Link back to originals for reference if needed, or remove -->
+            <!-- <p><small><a href="https://analise.odysseus.bot">analise.odysseus.bot</a> | <a href="https://servicos.odysseus.bot">servicos.odysseus.bot</a></small></p> -->
+        </div>
+    </footer>
+
+    <script>
+        // Simple Particle Animation (Optional - adapted from analise.odysseus.bot)
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas?.getContext('2d');
+        let particles = [];
+        let animationFrameId;
+
+        function resizeCanvas() { if(canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; } }
+
+        class Particle {
+             constructor() {
+                this.x = Math.random() * (canvas?.width || window.innerWidth);
+                this.y = Math.random() * (canvas?.height || window.innerHeight);
+                this.size = Math.random() * 1.2 + 0.4; // Smaller particles
+                this.speedX = (Math.random() - 0.5) * 0.2; // Slower speed
+                this.speedY = (Math.random() - 0.5) * 0.2;
+                // Blend colors
+                this.color = Math.random() > 0.5
+                           ? `rgba(80, 120, 240, ${Math.random() * 0.4 + 0.1})` // Primary accent blue
+                           : `rgba(138, 92, 246, ${Math.random() * 0.3 + 0.05})`; // Secondary accent purple
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                const w = canvas?.width || window.innerWidth;
+                const h = canvas?.height || window.innerHeight;
+                if (this.x < 0 || this.x > w) { this.speedX *= -0.9; this.x = Math.max(0, Math.min(this.x, w)); } // Bounce softer
+                if (this.y < 0 || this.y > h) { this.speedY *= -0.9; this.y = Math.max(0, Math.min(this.y, h)); }
+            }
+            draw() { if(ctx) { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
+        }
+
+        function initParticles(count = 30) { // Fewer particles
+             particles = [];
+             if(canvas) { for (let i = 0; i < count; i++) { particles.push(new Particle()); } }
+        }
+
+        function handleParticles() {
+            if (!canvas || !ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            // No connections for a cleaner look on the portal page
+            animationFrameId = requestAnimationFrame(handleParticles);
+        }
+
+         // Start/Stop animation based on visibility
+         const observerCallback = (entries) => {
+             if (!canvas) return;
+             const entry = entries[0];
+             if (entry.isIntersecting) { if (!animationFrameId) { resizeCanvas(); initParticles(); handleParticles(); } }
+             else { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height); } }
+         };
+         const observer = new IntersectionObserver(observerCallback, { threshold: 0 });
+         if (document.body && canvas) observer.observe(document.body);
+         window.addEventListener('resize', () => { if (animationFrameId && canvas) { resizeCanvas(); initParticles(); } }); // Re-init on resize
+
+        console.log("Odysseus AI Portal Initialized.");
+
+    </script>
+</body>
+</html>
